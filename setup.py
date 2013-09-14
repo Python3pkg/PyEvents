@@ -9,7 +9,7 @@ setup(
     author='John Vrbanac',
     author_email='john.vrbanac@linux.com',
     description='PyEvents is a simple event dispatching library for Python '
-                'modeled after AS3\'s EventDispatcher',
+                'inspired from AS3\'s EventDispatcher',
     classifiers=(
         'Development Status :: 1 - Planning',
         'Intended Audience :: Developers',
