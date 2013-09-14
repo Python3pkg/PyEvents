@@ -19,52 +19,40 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
-from types import FunctionType
+from types import FunctionType, MethodType
+
+from pyevents.event import Listener
 
 
-class EventManager(object):
+class EventDispatcher(object):
 
     def __init__(self):
-        super(EventManager, self).__init__()
+        super(EventDispatcher, self).__init__()
         self.listeners = []
 
-    def add_listener(self, evt_type, callback):
-        self.listeners.append(Listener(evt_type, callback))
+    def add_listener(self, event_name, callback):
+        call_type = type(callback)
+        if type(event_name) is not str:
+            raise TypeError('event_name has to be a string')
+        if call_type is not FunctionType and call_type is not MethodType:
+            raise TypeError('callback has to be a function or method')
 
-    def has_listener(self, evt_type, callback):
-        return Listener(evt_type, callback) in self.listeners
+        listener = Listener(event_name, callback)
+        self.listeners.append(listener)
+        return listener
 
-    def remove_listener(self, evt_type, callback):
-        if self.has_listener(evt_type, callback):
-            self.listeners.remove(Listener(evt_type, callback))
+    def has_listener(self, event_name, callback):
+        contains = [listener for listener in self.listeners
+                    if listener.event_name == event_name]
+        return len(contains) > 0
+
+    def remove_listener(self, event_name, callback):
+        if self.has_listener(event_name, callback):
+            self.listeners.remove(Listener(event_name, callback))
 
     def dispatch(self, event):
-        to_call = [l for l in self.listeners if l.type is event.type]
+        to_call = [l for l in self.listeners if l.event_name == event.name]
         for listener in to_call:
-            if type(listener.callback) is FunctionType:
+            callback_type = type(listener.callback)
+            if callback_type is FunctionType or callback_type is MethodType:
                 listener.callback(event)
-
-
-class Listener(object):
-
-    def __init__(self, evt_type, callback):
-        super(Listener, self).__init__()
-        self.type = evt_type
-        self.callback = callback
-
-    def __eq__(self, other):
-        result = False
-        if type(other) is Listener:
-            result = self.type == other.type and self.callback == other.type
-        return result
-
-    def __ne__(self, other):
-        return self is not other
-
-
-class Event(object):
-
-    def __init__(self, event_type, payload=None):
-        super(Event, self).__init__()
-        self.event_type = event_type
-        self.payload = payload
