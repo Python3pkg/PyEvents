@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from pyevents.event import Listener
+from pyevents.event import Event, Listener
 
 
 class TestListener(TestCase):
@@ -14,3 +14,11 @@ class TestListener(TestCase):
 
         self.assertEqual(exemplar, expected)
         self.assertNotEqual(exemplar, bad_expect)
+
+
+class TestEvent(TestCase):
+    def test_compare_two_instances_with_same_content(self):
+        evt1 = Event('test', 'random_str')
+        evt2 = Event('test', 'random_str')
+
+        self.assertEqual(evt1, evt2)
